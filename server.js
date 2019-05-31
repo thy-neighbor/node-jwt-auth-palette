@@ -28,7 +28,7 @@ app.use(morgan('common'));
 // CORS
 app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  res.header('Access-Control-Allow-Headers', 'Accept,Content-Type,Authorization,cache-control');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
@@ -41,7 +41,7 @@ passport.use(jwtStrategy);
 
 app.use('/api/users/', usersRouter);
 app.use('/api/auth/', authRouter);
-app.use('/api/public/', paletteRouter);
+app.use('/api/public', paletteRouter);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 

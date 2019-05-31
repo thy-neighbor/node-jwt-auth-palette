@@ -34,9 +34,43 @@ router.post('/', jsonParser, (req, res) => {
 
 // A protected endpoint which needs a valid JWT to access it
 router.get('/', (req, res) => {
-  let {user} = req.body;
+  let user = req.query.q;
   return Palette.find({user})
-  .then(data=> {res.json({data})});
+  .then(data=> {console.log(`Backend>Palette>Router.js Get data:`,data); res.send({data})});
+});
+
+router.put('/', jsonParser, (req, res) => {
+  
+  let {paletteId,paletteRgb}=req.body;
+
+  //console.log(`Backend>Palette>Router.js data:`,user,name,rgb);
+  console.log(`Backend>Palette>Router.js data:`,req.body);
+  return Palette.findByIdAndUpdate(paletteId,{rgb:paletteRgb}).then(palette => {
+  const response = {
+      message: "Palette successfully updated to:",
+      rgb: palette.rgb
+  };
+    return res.status(201);
+  }).catch(err => {
+    res.status(500).json({code: 500, message: 'Internal server error'});
+  });
+});
+
+router.delete('/', jsonParser, (req, res) => {
+  
+  let {paletteId}=req.body;
+
+  //console.log(`Backend>Palette>Router.js data:`,user,name,rgb);
+  console.log(`Backend>Palette>Router.js data:`,req.body);
+  return Palette.findByIdAndRemove(paletteId).then(palette => {
+  const response = {
+      message: "Palette successfully deleted:",
+      rgb: palette.rgb
+  };
+    return res.status(201);
+  }).catch(err => {
+    res.status(500).json({code: 500, message: 'Internal server error'});
+  });
 });
 
 module.exports = {router};
