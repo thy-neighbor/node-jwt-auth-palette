@@ -18,6 +18,7 @@ const {router: paletteRouter} = require('./palette');
 
 mongoose.Promise = global.Promise;
 
+
 const { PORT, DATABASE_URL } = require('./config');
 
 const app = express();
@@ -41,7 +42,7 @@ passport.use(jwtStrategy);
 
 app.use('/api/users/', usersRouter);
 app.use('/api/auth/', authRouter);
-app.use('/api/public', paletteRouter);
+app.use('/api/public/', paletteRouter);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 

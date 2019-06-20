@@ -16,6 +16,18 @@ router.post('/', jsonParser, (req, res) => {
 
   //console.log(`Backend>Palette>Router.js data:`,user,name,rgb);
   console.log(`Backend>Palette>Router.js data:`,req.body);
+
+/*   Palette.find({user,name}).then(palette=> { if(palette){
+    return res.status(422).json({
+      code: 422,
+      reason: 'ValidationError',
+      message: `Name Already Taken`,
+      location: alreadyTaken
+    });
+  }
+}) */
+
+
   return Palette.create({
     user,
     name,
@@ -36,7 +48,10 @@ router.post('/', jsonParser, (req, res) => {
 router.get('/', (req, res) => {
   let user = req.query.q;
   return Palette.find({user})
-  .then(data=> {console.log(`Backend>Palette>Router.js Get data:`,data); res.send({data})});
+  .then(data=> {console.log(`Backend>Palette>Router.js Get data:`,data); res.send({data})})
+  .catch(err => {
+    res.status(500).json({code: 500, message: 'Internal server error'});
+  });
 });
 
 router.put('/', jsonParser, (req, res) => {
@@ -44,13 +59,13 @@ router.put('/', jsonParser, (req, res) => {
   let {paletteId,paletteRgb}=req.body;
 
   //console.log(`Backend>Palette>Router.js data:`,user,name,rgb);
-  console.log(`Backend>Palette>Router.js data:`,req.body);
-  return Palette.findByIdAndUpdate(paletteId,{rgb:paletteRgb}).then(palette => {
+  //console.log(`Backend>Palette>Router.js data:`,req.body);
+  return Palette.updateOne({_id:paletteId},{rgb:paletteRgb}).then(palette => {
   const response = {
       message: "Palette successfully updated to:",
       rgb: palette.rgb
   };
-    return res.status(201);
+    res.status(201).json({message:response});
   }).catch(err => {
     res.status(500).json({code: 500, message: 'Internal server error'});
   });
@@ -62,15 +77,28 @@ router.delete('/', jsonParser, (req, res) => {
 
   //console.log(`Backend>Palette>Router.js data:`,user,name,rgb);
   console.log(`Backend>Palette>Router.js data:`,req.body);
-  return Palette.findByIdAndRemove(paletteId).then(palette => {
+  return Palette.deleteOne({_id:paletteId}).then(palette => {
   const response = {
       message: "Palette successfully deleted:",
       rgb: palette.rgb
   };
-    return res.status(201);
+    res.status(201).json({message:response});
   }).catch(err => {
     res.status(500).json({code: 500, message: 'Internal server error'});
   });
 });
+
+// A protected endpoint which needs a valid JWT to access it
+router.get('/community', (req, res) => {
+  //handle case if less than 3 saved community palettes
+  return Palette.find({})
+  .then(data => {
+    console.log(`Backend>Palette>Router.js Get data:`,data);
+    let l=data.length;
+    let newData=[data[l-1],data[l-2],data[l-3]];
+    res.send({data:newData});
+  });
+});
+
 
 module.exports = {router};
